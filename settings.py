@@ -4,6 +4,7 @@ import random
 import os
 from os import environ, listdir, makedirs
 from os.path import isfile, isdir, basename, dirname, join, normpath
+from platform import machine
 from sys import platform
 from PyQt4.QtCore import QSettings, QString, QT_VERSION
 from PyQt4.QtGui import QMessageBox, QFileDialog, QDesktopServices
@@ -190,9 +191,13 @@ class Settings():
 
     def getCustomLogDir(self):
         if platform == 'win32':
-            from _winreg import OpenKey, EnumKey, QueryValueEx, HKEY_LOCAL_MACHINE
-            aKey = OpenKey(HKEY_LOCAL_MACHINE, r"SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall")
             try:
+                from _winreg import OpenKey, EnumKey, QueryValueEx, HKEY_LOCAL_MACHINE
+                # Assumes that the launcher is a 32bit process
+                if machine().endswith('64'):
+                    aKey = OpenKey(HKEY_LOCAL_MACHINE, r"SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall")
+                else:
+                    aKey = OpenKey(HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall")
                 i = 0
                 while True:
                     asubkey = OpenKey(aKey, EnumKey(aKey,i))
@@ -209,8 +214,9 @@ class Settings():
                         pass
                     asubkey.Close()
                     i += 1
-            except:
                 aKey.Close()
+            except:
+                pass
         return None
 
     def setDefaultExportDir(self):
