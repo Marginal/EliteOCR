@@ -181,7 +181,7 @@ class TesseractStation:
         return res
         
     def hocrToObject(self, input, area, factor):
-        soup = BeautifulSoup(input)
+        soup = BeautifulSoup(input, 'lxml')
         linelist = []
         for line in soup.findAll("span", { "class" : "ocr_line" }):
             wordlist = []
@@ -343,7 +343,7 @@ class TesseractMarket1:
         return res
         
     def hocrToObject(self, input, area, factor):
-        soup = BeautifulSoup(input)
+        soup = BeautifulSoup(input, 'lxml')
         linelist = []
         for line in soup.findAll("span", { "class" : "ocr_line" }):
             wordlist = []

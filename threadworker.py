@@ -32,7 +32,7 @@ class Worker(QThread):
 
         versions = []
 
-        soup = BeautifulSoup(result)
+        soup = BeautifulSoup(result, 'lxml')
         try:
             for line in soup.findAll("table", { "id" : "files_list" }):
                 for row in line.findAll("tr", { "class" : "folder" }):
@@ -52,7 +52,7 @@ class Worker(QThread):
 
         files = []
 
-        soup = BeautifulSoup(result2)
+        soup = BeautifulSoup(result2, 'lxml')
         for line in soup.findAll("table", { "id" : "files_list" }):
             for row in line.findAll("tr", { "class" : "file" }):
                 match = re.search(r"EliteOCR\.([0-9\.]+)\.zip$", row['title'].strip())
