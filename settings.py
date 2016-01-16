@@ -10,10 +10,35 @@ from PyQt4.QtCore import QSettings, QString, QT_VERSION
 from PyQt4.QtGui import QMessageBox, QFileDialog, QDesktopServices
 
 if platform == 'win32':
-    import ctypes.wintypes
+    import ctypes
     CSIDL_LOCAL_APPDATA = 0x001c
     CSIDL_PROGRAM_FILESX86 = 0x002a
     SHGFP_TYPE_CURRENT = 0 	# Current, not default, values
+
+    # _winreg that ships with Python 2 doesn't support unicode, so do this instead
+    from ctypes.wintypes import *
+
+    HKEY_CURRENT_USER       = 0x80000001
+    HKEY_LOCAL_MACHINE      = 0x80000002
+    KEY_READ                = 0x00020019
+    REG_SZ    = 1
+
+    RegOpenKeyEx = ctypes.windll.advapi32.RegOpenKeyExW
+    RegOpenKeyEx.restype = LONG
+    RegOpenKeyEx.argtypes = [HKEY, LPCWSTR, DWORD, DWORD, ctypes.POINTER(HKEY)]
+
+    RegCloseKey = ctypes.windll.advapi32.RegCloseKey
+    RegCloseKey.restype = LONG
+    RegCloseKey.argtypes = [HKEY]
+
+    RegQueryValueEx = ctypes.windll.advapi32.RegQueryValueExW
+    RegQueryValueEx.restype = LONG
+    RegQueryValueEx.argtypes = [HKEY, LPCWSTR, LPCVOID, ctypes.POINTER(DWORD), LPCVOID, ctypes.POINTER(DWORD)]
+
+    RegEnumKeyEx = ctypes.windll.advapi32.RegEnumKeyExW
+    RegEnumKeyEx.restype = LONG
+    RegEnumKeyEx.argtypes = [HKEY, DWORD, LPWSTR, ctypes.POINTER(DWORD), ctypes.POINTER(DWORD), LPWSTR, ctypes.POINTER(DWORD), ctypes.POINTER(FILETIME)]
+
 elif platform == 'darwin':
     from Foundation import NSHomeDirectory, NSSearchPathForDirectoriesInDomains, NSDocumentDirectory, NSApplicationSupportDirectory, NSPicturesDirectory, NSUserDomainMask
 
@@ -163,25 +188,58 @@ class Settings():
         self.reg.setValue('screenshot_dir', isdir(path) and path or self.userprofile)
         
     def setDefaultLogDir(self):
-        self.reg.setValue('log_dir', self.getCustomLogDir() or self.getStandardLogDir() or self.userprofile)
+        self.reg.setValue('log_dir', self.getLogDir() or self.userprofile)
 
-    def getStandardLogDir(self):
+    def getLogDir(self):
         if platform == 'win32':
             # https://support.elitedangerous.com/kb/faq.php?id=108
-            programs = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
+            candidates = []
+
+            # Steam and Steam libraries
+            key = HKEY()
+            if not RegOpenKeyEx(HKEY_CURRENT_USER, r'Software\Valve\Steam', 0, KEY_READ, ctypes.byref(key)):
+                valtype = DWORD()
+                valsize = DWORD()
+                if not RegQueryValueEx(key, 'SteamPath', 0, ctypes.byref(valtype), None, ctypes.byref(valsize)) and valtype.value == REG_SZ:
+                    buf = ctypes.create_unicode_buffer(valsize.value / 2)
+                    if not RegQueryValueEx(key, 'SteamPath', 0, ctypes.byref(valtype), buf, ctypes.byref(valsize)):
+                        steampath = buf.value.replace('/', '\\')	# For some reason uses POSIX seperators
+                        steamlibs = [steampath]
+                        try:
+                            # Simple-minded Valve VDF parser
+                            with open(join(steampath, 'config', 'config.vdf'), 'rU') as h:
+                                for line in h:
+                                    vals = line.split()
+                                    if vals and vals[0].startswith('"BaseInstallFolder_'):
+                                        steamlibs.append(vals[1].strip('"').replace('\\\\', '\\'))
+                        except:
+                            pass
+                        for lib in steamlibs:
+                            candidates.append(join(lib, 'steamapps', 'common', 'Elite Dangerous Horizons', 'Products'))
+                            candidates.append(join(lib, 'steamapps', 'common', 'Elite Dangerous', 'Products'))
+                RegCloseKey(key)
+
+            # Next try custom installation under the Launcher
+            candidates.append(self.getCustomLogDir() or '')
+
+            # Standard non-Steam locations
+            programs = ctypes.create_unicode_buffer(MAX_PATH)
             ctypes.windll.shell32.SHGetSpecialFolderPathW(0, programs, CSIDL_PROGRAM_FILESX86, 0)
-            applocal = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
+            candidates.append(join(programs.value, 'Frontier', 'Products')),
+
+            applocal = ctypes.create_unicode_buffer(MAX_PATH)
             ctypes.windll.shell32.SHGetSpecialFolderPathW(0, applocal, CSIDL_LOCAL_APPDATA, 0)
-            for base in [join(programs.value, "Steam", "steamapps", "common", "Elite Dangerous", "Products"),
-                         join(programs.value, "Frontier", "Products"),
-                         join(applocal.value, "Frontier_Developments", "Products")]:
-                if isdir(base):
-                    for d in listdir(base):
-                        if d.startswith("FORC-FDEV-D-1") and isdir(join(base, d, "Logs")):
-                            return join(base, d, "Logs")
+            candidates.append(join(applocal.value, 'Frontier_Developments', 'Products'))
+
+            for game in ['elite-dangerous-64', 'FORC-FDEV-D-1']:	# Look for Horizons in all candidate places first
+                for base in candidates:
+                    if isdir(base):
+                        for d in listdir(base):
+                            if d.startswith(game) and isfile(join(base, d, 'AppConfig.xml')) and isdir(join(base, d, 'Logs')):
+                                return join(base, d, 'Logs')
 
         elif platform == 'darwin':
-            # TODO: Steam on Mac
+            # https://support.frontier.co.uk/kb/faq.php?id=97
             suffix = join("Frontier Developments", "Elite Dangerous", "Logs")
             paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, True)
             if len(paths) and isdir(join(paths[0], suffix)):
@@ -191,32 +249,32 @@ class Settings():
 
     def getCustomLogDir(self):
         if platform == 'win32':
-            try:
-                from _winreg import OpenKey, EnumKey, QueryValueEx, HKEY_LOCAL_MACHINE
-                # Assumes that the launcher is a 32bit process
-                if machine().endswith('64'):
-                    aKey = OpenKey(HKEY_LOCAL_MACHINE, r"SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall")
-                else:
-                    aKey = OpenKey(HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall")
+            key = HKEY()
+            if not RegOpenKeyEx(HKEY_LOCAL_MACHINE,
+                                machine().endswith('64') and
+                                r'SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall' or	# Assumes that the launcher is a 32bit process
+                                r'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall',
+                                0, KEY_READ, ctypes.byref(key)):
+                buf = ctypes.create_unicode_buffer(MAX_PATH)
                 i = 0
                 while True:
-                    asubkey = OpenKey(aKey, EnumKey(aKey,i))
-                    try:
-                        if QueryValueEx(asubkey, "Publisher")[0] == "Frontier Developments":
-                            custpath = join(QueryValueEx(asubkey, "InstallLocation")[0], "Products")
-                            if isdir(custpath):
-                                for d in listdir(custpath):
-                                    if d.startswith("FORC-FDEV-D-1") and isdir(join(custpath, d, "Logs")):
-                                        asubkey.Close()
-                                        aKey.Close()
-                                        return join(custpath, d, "Logs")
-                    except:
-                        pass
-                    asubkey.Close()
+                    size = DWORD(MAX_PATH)
+                    if RegEnumKeyEx(key, i, buf, ctypes.byref(size), None, None, None, None):
+                        break
+
+                    subkey = HKEY()
+                    if not RegOpenKeyEx(key, buf, 0, KEY_READ, ctypes.byref(subkey)):
+                        valtype = DWORD()
+                        valsize = DWORD((len('Frontier Developments')+1)*2)
+                        valbuf = ctypes.create_unicode_buffer(valsize.value / 2)
+                        if not RegQueryValueEx(subkey, 'Publisher', 0, ctypes.byref(valtype), valbuf, ctypes.byref(valsize)) and valtype.value == REG_SZ and valbuf.value == 'Frontier Developments':
+                            if not RegQueryValueEx(subkey, 'InstallLocation', 0, ctypes.byref(valtype), None, ctypes.byref(valsize)) and valtype.value == REG_SZ:
+                                valbuf = ctypes.create_unicode_buffer(valsize.value / 2)
+                                if not RegQueryValueEx(subkey, 'InstallLocation', 0, ctypes.byref(valtype), valbuf, ctypes.byref(valsize)):
+                                    return(join(valbuf.value, 'Products'))
+                        RegCloseKey(subkey)
                     i += 1
-                aKey.Close()
-            except:
-                pass
+                RegCloseKey(key)
         return None
 
     def setDefaultExportDir(self):

@@ -140,14 +140,14 @@ class SetupWizard(QWizard, Ui_SetupWizard):
     
     def checkLogValid(self):
         logpath = unicode(self.path_input.text())
-        self.standard_path.setText(logpath==self.settings.getStandardLogDir() and "Yes" or "No")
+        self.standard_path.setText(logpath==self.settings.getLogDir() and logpath!=self.settings.getCustomLogDir() and "Yes" or "No")
         self.custom_path.setText(logpath==self.settings.getCustomLogDir() and "Yes" or "No")
         self.valid_path.setText(isValidLogPath(logpath) and "Yes" or "No")
 
     def logWork(self):
         self.operating_system.setText(platform=="darwin" and "Mac OS" or system())
         # re-initialize to default settings
-        self.path_input.setText(self.settings.getCustomLogDir() or self.settings.getStandardLogDir() or self.settings.userprofile)
+        self.path_input.setText(self.settings.getLogDir() or self.settings.userprofile)
 
     def enableVerbose(self):
         enableVerboseLogging(unicode(self.path_input.text()))
