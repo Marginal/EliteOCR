@@ -193,9 +193,10 @@ class MLP:
         
         whitecount = 0
         
+        # scan the image from top to bottom
         for i in xrange(rows):
             blackflag = False
-            for j in xrange(int(rows/146),cols):
+            for j in xrange(int(rows/146),cols):	# skip the left margin
                 if input.item(i,j) < 250:
                     whitecount = 0
                     blackflag = True
@@ -208,14 +209,16 @@ class MLP:
                         firstflag = True
             
             if not blackflag:
+                # a gap
                 whitecount += 1
             
-            if firstflag and not blackflag and whitecount > (rows/183):
-                last = i+1 -whitecount
-                firstflag = False
-                lines.append([start, end, first, last])
-                start = cols
-                end = 0
+                if firstflag and whitecount > (rows/183):
+                    # make a line
+                    last = i+1 -whitecount
+                    firstflag = False
+                    lines.append([start, end, first, last])
+                    start = cols
+                    end = 0
 
         if firstflag:
             last = rows - whitecount
@@ -224,10 +227,14 @@ class MLP:
             start = cols
             end = 0
         
-        #for line in lines:
-        #    cv2.rectangle(input,(line[0],line[2]),(line[1],line[3]),(0,0,0),1)   
-        #    cv2.imshow("x", input)
-        #    cv2.waitKey(0)
+        # if __debug__:
+        #     cv2.imshow("x", input)
+        #     cv2.waitKey(0)
+        #     for line in lines:
+        #         cv2.rectangle(input,(line[0],line[2]),(line[1],line[3]),(0,0,0),1)
+        #     cv2.imshow("x", input)
+        #     cv2.waitKey(0)
+
         return lines
         
         
@@ -242,14 +249,11 @@ class MLP:
             charboxes = []
             first = 0
             last = 0
-            blackflag = False
             firstflag = False
             firstcharflag = False
             
             whitecount = 0
-            lastblack = 1000
-            lastfirst = 0
-            
+
             start = line[3]+2
             end = 0
             
@@ -275,10 +279,10 @@ class MLP:
             if i_to >= w:
                 i_to = w
             
+            # scan the line from left to right
             for i in xrange(i_from,i_to):
-                blackflag = False
+                blackflag = False	# found a piece of a character in this vertical slice of pixels ?
                 for j in xrange(j_from,j_to):
-                    #print(j,i)
                     if input.item(j,i) < 250:
                         whitecount = 0
                         blackflag = True
@@ -297,32 +301,34 @@ class MLP:
                             firstchar = i-1
                             firstcharflag = True
 
-                
                 if not blackflag:
+                    # a gap
                     whitecount += 1
                 
-                if firstcharflag and not blackflag:
-                    last = i+1
-                    charboxes.append([firstchar if firstchar >= 0 else 0,last, startchar if startchar >= 0 else 0, endchar])
-                    firstcharflag = False
-                    startchar = line[3]+2
-                    endchar = 0
+                    if firstcharflag:
+                        # make a character
+                        last = i+1
+                        charboxes.append([firstchar if firstchar >= 0 else 0,last, startchar if startchar >= 0 else 0, endchar])
+                        firstcharflag = False
+                        startchar = line[3]+2
+                        endchar = 0
                 
-                if firstflag and not blackflag and whitecount > (line[3] - line[2])/2.6:
-                    #h = line[3] - line[2]
-                    last = i - whitecount + 1
-                    whitecount = 0
-                    firstflag = False
-                    y1 = start if start > 0 else 0
-                    y2 = end
-                    x1 = first if first > 0 else 0
-                    x2 = last
-                    boxline.append({"line":line,"box":[x1, x2, y1, y2], "units":charboxes})
-                    charboxes = []
-                    start = line[3]+2
-                    end = 0
+                    if firstflag and whitecount > (line[3] - line[2])/2.6:
+                        # make a word
+                        last = i - whitecount + 1
+                        whitecount = 0
+                        firstflag = False
+                        y1 = start if start > 0 else 0
+                        y2 = end
+                        x1 = first if first > 0 else 0
+                        x2 = last
+                        boxline.append({"line":line,"box":[x1, x2, y1, y2], "units":charboxes})
+                        charboxes = []
+                        start = line[3]+2
+                        end = 0
                     
             if firstflag:
+                # final word
                 last = i_to - whitecount
                 whitecount = 0
                 firstflag = False
@@ -332,19 +338,21 @@ class MLP:
                 x2 = last
                 boxline.append({"line":line,"box":[x1, x2, y1, y2], "units":charboxes})
                 charboxes = []
-            out = ""
+
             boxes.append(boxline)
-            
-            """
-            for box in boxline:
-                for unit in box["units"]:
-                    cv2.rectangle(input,(unit[0],unit[2]),(unit[1],unit[3]),(0,0,0),1)
-                    print unit
-                #cv2.imshow("x", input)
-                #cv2.waitKey(0)
-            """
-            #return boxes
-            
+
+        # if __debug__:
+        #     cv2.imshow("x", input)
+        #     cv2.waitKey(0)
+        #     for boxline in boxes:
+        #         for box in boxline:
+        #             for unit in box["units"]:
+        #                 cv2.rectangle(input,(unit[0],unit[2]),(unit[1],unit[3]),(0,0,0),1)
+        #                 print unit
+        #         print
+        #     cv2.imshow("x", input)
+        #     cv2.waitKey(0)
+
         return boxes
     
     def mlpocr(self, input, box, type):
