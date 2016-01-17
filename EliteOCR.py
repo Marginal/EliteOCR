@@ -890,9 +890,8 @@ class EliteOCR(QMainWindow, Ui_MainWindow):
     def processOCRLine(self):
         """Process current OCR result line."""
         if len(self.current_result.commodities) > self.OCRline:
-            #font = QFont("Consolas", 11)
             res = self.current_result.commodities[self.OCRline]
-            if (not res.sell is None) and (not res.buy is None):
+            if res.sell and res.sell.confidence and res.buy and res.buy.confidence:
                 sell = int(res.sell.value.replace(',', '').replace('.', ''))
                 buy = int(res.buy.value.replace(',', '').replace('.', ''))
                 if sell > buy:
