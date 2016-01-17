@@ -212,7 +212,7 @@ class MLP:
                 # a gap
                 whitecount += 1
             
-                if firstflag and whitecount > (rows/183):
+                if firstflag and whitecount > (rows/100):
                     # make a line
                     last = i+1 -whitecount
                     firstflag = False
@@ -313,7 +313,7 @@ class MLP:
                         startchar = line[3]+2
                         endchar = 0
                 
-                    if firstflag and whitecount > (line[3] - line[2])/2.6:
+                    if firstflag and whitecount > (line[3] - line[2])/4:
                         # make a word
                         last = i - whitecount + 1
                         whitecount = 0
