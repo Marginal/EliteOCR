@@ -14,7 +14,22 @@ from operator import itemgetter
 from imageprocessing import contBright
 from Levenshtein import ratio, distance
 
+FIELD_STATION, FIELD_NAME, FIELD_SELL, FIELD_BUY, FIELD_CARGO, FIELD_DEMAND_NUM, FIELD_DEMAND, FIELD_SUPPLY_NUM, FIELD_SUPPLY = range(9)
+TYPE_NONE, TYPE_STATION, TYPE_NUMBER, TYPE_LETTER, TYPE_LEVEL = range(5)
+
 class OCRAreasFinder:
+
+    AREAS = [
+        (0.0,   0.357, FIELD_NAME,       TYPE_LETTER),
+        (0.361, 0.447, FIELD_SELL,       TYPE_NUMBER),
+        (0.448, 0.533, FIELD_BUY,        TYPE_NUMBER),
+        (0.534, 0.624, FIELD_CARGO,      TYPE_NONE),
+        (0.625, 0.771, FIELD_DEMAND_NUM, TYPE_NUMBER),
+        (0.772, 0.802, FIELD_DEMAND,     TYPE_NONE),
+        (0.805, 0.969, FIELD_SUPPLY_NUM, TYPE_NUMBER),
+        (0.970, 1.0,   FIELD_SUPPLY,     TYPE_NONE)
+    ]
+
     def __init__(self, image, contrast = None):
         #color = image
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -134,24 +149,13 @@ class OCRAreasFinder:
         if len(loi) == 0:
             return[]
         return loi
-    
+
+    # Scale areas to market table width
     def getAreas(self, x1, x2):
-        areas = [[0.0, 0.357],
-                 [0.361, 0.447],
-                 [0.448, 0.533],
-                 [0.625, 0.731],
-                 [0.732, 0.802],
-                 [0.805, 0.909],
-                 [0.911, 0.999]]
-
-        new_areas = []
         x = x2 - x1
+        return [(area[0]*x, area[1]*x, area[2], area[3]) for area in self.AREAS]
 
-        for area in areas:
-            new_areas.append([(area[0]*x),
-                              (area[1]*x)])
-        return new_areas
-        
+
 class MLP:
     def __init__(self, image, settings, areas, isstation, calibration = False):
         #full old
@@ -407,19 +411,20 @@ class MLP:
         if len(temp)>0:
             classdict = None
             data = np.array(temp, dtype='float32')
-            if type == "numbers":
+            if type == TYPE_NUMBER:
                 resultclasses = -1 * np.ones((len(data),self.numbers.keys), dtype='float32')
                 self.numbers.nnetwork.predict(data, resultclasses)
                 classdict = self.numbers.classdict
-            elif type == "letters":
+            elif type == TYPE_LETTER:
                 resultclasses = -1 * np.ones((len(data),self.letters.keys), dtype='float32')
                 self.letters.nnetwork.predict(data, resultclasses)
                 classdict = self.letters.classdict
-            elif type == "station":
+            elif type == TYPE_STATION:
                 resultclasses = -1 * np.ones((len(data),self.station.keys), dtype='float32')
                 self.station.nnetwork.predict(data, resultclasses)
                 classdict = self.station.classdict
-            
+            else:
+                assert False, type
             
             for k in range(len(resultclasses)):
                 #print resultclasses[j]
@@ -450,19 +455,19 @@ class MLP:
                     
                     for word in line:
                         if isstation:
-                            result = self.mlpocr(input, word, "station")
+                            newline.addWord(OCRbox(word["box"], self.mlpocr(input, word, TYPE_STATION), word["units"]), FIELD_STATION)
+
                         else:
-                            if word["box"][1] < self.areas[0][1]:
-                                result = self.mlpocr(input, word, "letters")
-                            elif word["box"][0] > self.areas[4][0] and word["box"][1] < self.areas[4][1]:
-                                result = self.mlpocr(input, word, "letters")
-                            elif word["box"][0] > self.areas[6][0] and word["box"][1] < self.areas[6][1]:
-                                result = self.mlpocr(input, word, "letters")    
+                            for area in self.areas:
+                                if word["box"][0] > area[0] and word["box"][1] < area[1]:
+                                    if area[3] != TYPE_NONE:	# level bars not yet supported
+                                        newline.addWord(OCRbox(word["box"], self.mlpocr(input, word, area[3]), word["units"]), area[2])
+                                    break
                             else:
-                                result = self.mlpocr(input, word, "numbers")
-                                
-                        newline.addWord(OCRbox(word["box"], result, word["units"]), isstation)
-                        
+                                # outside expected boxes - ignore
+                                if __debug__:
+                                    print 'word outside expected area', word["box"]
+
                     #print newline
                     self.result.append(newline)
         #print self.result
@@ -590,20 +595,14 @@ class OCRLine():
     def __getitem__(self, key):
         return self.items[key]
         
-    def addWord(self, word, station = False):
-        if station:
+    def addWord(self, word, field):
+        if field == FIELD_STATION:
             self.addName(word)
             self.items[0] = self.name
-            return
-            
-        x1 = word.x1
-        x2 = word.x2
-        #for x in xrange(0, len(self.areas_x)):
-        if x2 <= self.areas_x[0][1]:
+        elif field == FIELD_NAME:
             self.addName(word)
             self.items[0] = self.name
-            return
-        if x1 >= int(self.areas_x[1][0]) and x2 <= int(self.areas_x[1][1]):
+        elif field == FIELD_SELL:
             if self.sell is None:
                 self.sell = word
             else:
@@ -612,8 +611,7 @@ class OCRLine():
             if not OCRLine.numberpattern.match(self.sell.value.strip()):
                 self.sell.confidence = 0.0
             self.items[1] = self.sell
-            return
-        if x1 >= self.areas_x[2][0] and x2 <= self.areas_x[2][1]:
+        elif field == FIELD_BUY:
             if word.value == "-" or word.value == ",":
                 return
             if self.buy is None:
@@ -624,8 +622,7 @@ class OCRLine():
             if not OCRLine.numberpattern.match(self.buy.value.strip()):
                 self.buy.confidence = 0.0
             self.items[2] = self.buy
-            return
-        if x1 >= self.areas_x[3][0] and x2 <= self.areas_x[3][1]:
+        elif field == FIELD_DEMAND_NUM:
             if self.demand_num is None:
                 self.demand_num = word
             else:
@@ -634,12 +631,10 @@ class OCRLine():
             if not OCRLine.numberpattern.match(self.demand_num.value.strip()):
                 self.demand_num.confidence = 0.0
             self.items[3] = self.demand_num
-            return
-        if x1 >= self.areas_x[4][0] and x2 <= self.areas_x[4][1]:
+        elif field == FIELD_DEMAND:
             self.demand = word
             self.items[4] = self.demand
-            return
-        if x1 >= self.areas_x[5][0] and x2 <= self.areas_x[5][1]:
+        elif field == FIELD_SUPPLY_NUM:
             if self.supply_num is None:
                 self.supply_num = word
             else:
@@ -648,12 +643,12 @@ class OCRLine():
             if not OCRLine.numberpattern.match(self.supply_num.value.strip()):
                 self.supply_num.confidence = 0.0
             self.items[5] = self.supply_num
-            return
-        if x1 >= self.areas_x[6][0] and x2 <= self.areas_x[6][1]:
+        elif field == FIELD_SUPPLY:
             self.supply = word
             self.items[6] = self.supply
-            return
-        
+        else:
+            assert False, field
+
     def addPart(self, word, to_add):
         coords = [word.x1, to_add.x2, word.y1, to_add.y2]
         units = word.units + to_add.units
