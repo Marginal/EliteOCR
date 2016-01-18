@@ -3,12 +3,10 @@ import cv2
 import re
 # -*- coding: utf-8 -*-
 import numpy as np
-import pytz
 import os
 from os import listdir
 from os.path import getmtime, getctime, isdir
 from time import gmtime, localtime, strftime
-from tzlocal import get_localzone
 from datetime import datetime, timedelta
 from PyQt4.QtGui import QListWidgetItem, QPixmap, QImage, qRgba, qGray, qAlpha
 from PyQt4.QtCore import Qt, QRect
@@ -131,13 +129,8 @@ class CustomQListWidgetItem(QListWidgetItem):
         
     def getTimeStamp(self):
         """Return timestamp for selected file."""
-        creationtime = getmtime(self.hiddentext)
-        tmstmp = datetime.fromtimestamp(creationtime)
-        timezone = get_localzone()
-        localtime = timezone.localize(tmstmp)
-        utc_time = localtime.astimezone (pytz.utc)
-        file_tmstmp = unicode(datetime.strftime(utc_time, "%Y-%m-%dT%H:%M:%S+00:00"))
-        return file_tmstmp
+        creationtime = getmtime(self.hiddentext)	# in local time
+        return unicode(strftime("%Y-%m-%dT%H:%M:%S+00:00", gmtime(creationtime)))
     
     def getFileTime(self):
         """Return creation time as an array, for searching in logs"""
