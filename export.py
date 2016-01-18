@@ -84,8 +84,8 @@ class Export:
                 towrite += unicode(cell)+";"
             towrite += "\n"
         file = unicode(file).encode(sys.getfilesystemencoding())
-        csv_file = codecs.open(file, "w", sys.getfilesystemencoding())
-        csv_file.write(towrite)
+        csv_file = open(file, "wt")
+        csv_file.write(towrite.encode('utf-8'))
         csv_file.close()
 
     def exportToOds(self, result, file):
