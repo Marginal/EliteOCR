@@ -6,7 +6,7 @@ import random
 import numpy as np
 import os
 from os import remove
-from os.path import split
+from os.path import join, split
 from functools import partial
 from qimage2ndarray import array2qimage
 from bitarray import bitarray
@@ -21,11 +21,18 @@ from customqlistwidgetitem import CustomQListWidgetItem
 from trainer import Trainer
 
 try:
-   import cPickle as pickle
+    import cPickle as pickle
 except:
-   import pickle
+    import pickle
 
 class LearningWizard(QWizard, Ui_Wizard):
+
+    # should match characters in Trainer
+    NUMBERS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ',', '-']
+    LETTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '-', "'"]	# commodity names
+    STATION = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-', "'", '&', '[', ']']
+    CHARACTERS = sorted(set(NUMBERS + LETTERS + STATION))
+
     def __init__(self, settings):
         QWizard.__init__(self)
         self.setupUi(self)
@@ -68,18 +75,13 @@ class LearningWizard(QWizard, Ui_Wizard):
         if not self.user is None:
             self.delete_images_button.setEnabled(True)
             self.user_data_label.setText(self.getUserData())
-        #self.resizeElements()
-        
-        #for index,item in zip(range(20), self.input_fields):
-        #    item.textEdited.connect(partial(self.changeText, index))
+        self.remove_file_button.setEnabled(False)
+        self.ocr_button.setEnabled(False)
         self.train_button.setEnabled(True)
-        #self.grid = QGridLayout()
-        #self.field_holder.addLayout(self.grid)
-        
-        
+
     def deleteUserImages(self):
         self.user = None
-        path = self.settings.storage_path+os.sep+"user_training_data.pck"
+        path = join(self.settings.storage_path, "user_training_data.pck")
         remove(path)
         self.user_data_label.setText("-")
         self.delete_images_button.setEnabled(False)
@@ -87,7 +89,7 @@ class LearningWizard(QWizard, Ui_Wizard):
     def showSummary(self):
         summary = ""
         userdata = {}
-        characters = ["'", ',', '-', '&', '[', ']', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+        characters = self.CHARACTERS
         for word in self.words:
             for letter in word:
                 if letter[1] in characters:
@@ -104,9 +106,9 @@ class LearningWizard(QWizard, Ui_Wizard):
     def trainOCR(self):
         self.train_button.setEnabled(False)
         alldata = self.connectData()
-        testnumbers = self.getRandomData(alldata,[',', '-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'])
-        testletters = self.getRandomData(alldata,["'", ',', '-', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
-        teststation = self.getRandomData(alldata,["'", ',', '-', '&', '[', ']', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+        testnumbers = self.getRandomData(alldata, self.NUMBERS)
+        testletters = self.getRandomData(alldata, self.LETTERS)
+        teststation = self.getRandomData(alldata, self.STATION)
         self.movie = QMovie(":/ico/loader.gif")
         self.loader.setMovie(self.movie)
         self.movie.start()
@@ -134,6 +136,7 @@ class LearningWizard(QWizard, Ui_Wizard):
         
     def stepFinished(self, value, error):
         self.steps += 1
+        print 'stepFinished', self.steps
         self.details.append(value+"\n")
         self.errors += error
         if self.steps == 3:
@@ -143,15 +146,13 @@ class LearningWizard(QWizard, Ui_Wizard):
     
     def connectData(self):
         connected = {}
-        characters = ["'", ',', '-', '&', '[', ']', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
-        
+
         if self.user is None:
             self.user = {}
         if self.base is None:
             self.base = {}
-            
 
-        for char in characters:
+        for char in self.CHARACTERS:
             if char in self.base and char in self.user:
                 connected[char] = self.base[char]+self.user[char]
             elif char in self.base:
@@ -180,14 +181,13 @@ class LearningWizard(QWizard, Ui_Wizard):
         return self.testsamples
     
     def saveImgData(self):
-        characters = ["'", ',', '-', '&', '[', ']', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
-        
+
         if self.user is None:
             self.user = {}
             
         for word in self.words:
             for letter in word:
-                if letter[1] in characters:
+                if letter[1] in self.CHARACTERS:
                     data = bitarray()
                     image = cv2.resize(letter[0], (20, 20))
                     ret,image = cv2.threshold(image,250,255,cv2.THRESH_BINARY)
@@ -202,7 +202,7 @@ class LearningWizard(QWizard, Ui_Wizard):
                     else:
                         self.user[letter[1]] = data
                     
-        path = self.settings.storage_path+os.sep+"user_training_data.pck"
+        path = join(self.settings.storage_path, "user_training_data.pck")
         file = gzip.GzipFile(path, 'wb')
         pickle.dump(self.user, file,-1)
         file.close()
@@ -239,7 +239,7 @@ class LearningWizard(QWizard, Ui_Wizard):
     
     def loadBase(self):
         try:
-            path = self.settings.app_path+os.sep+"trainingdata"+os.sep+"base_training_data.pck"
+            path = join(self.settings.app_path, "base_training_data.pck")
             file = gzip.GzipFile(path, 'rb')
             letters = pickle.load(file)
             file.close()
@@ -249,7 +249,7 @@ class LearningWizard(QWizard, Ui_Wizard):
         
     def loadUser(self):
         try:
-            path = self.settings.storage_path+os.sep+"user_training_data.pck"
+            path = join(self.settings.storage_path, "user_training_data.pck")
             file = gzip.GzipFile(path, 'rb')
             letters = pickle.load(file)
             file.close()
@@ -261,6 +261,9 @@ class LearningWizard(QWizard, Ui_Wizard):
         item = self.file_list.currentItem()
         self.file_list.takeItem(self.file_list.currentRow())
         del item
+        if not len(self.file_list):
+            self.remove_file_button.setEnabled(False)
+            self.ocr_button.setEnabled(False)
     
     def AddFiles(self):
         if self.settings["native_dialog"]:
@@ -279,7 +282,10 @@ class LearningWizard(QWizard, Ui_Wizard):
                 first_item = item
             self.file_list.addItem(item)
             counter+=1
-    """        
+        self.remove_file_button.setEnabled(True)
+        self.ocr_button.setEnabled(True)
+
+    """
     def resizeElements(self):
         fields = self.input_fields
         for field in fields:
