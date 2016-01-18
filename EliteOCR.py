@@ -73,7 +73,6 @@ if sys.platform=='darwin':
     errorlog = join(NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask|NSLocalDomainMask, True)[0], 'Logs', 'EliteOCR.log')
 else:
     errorlog = 'errorlog.txt'
-logging.basicConfig(format='%(asctime)s %(levelname)s:\n%(message)s', filename=errorlog, level=logging.WARNING)
 
 def exception_handler(ex_cls, ex, tb):
     fulltb = ''.join(traceback.format_tb(tb))
@@ -87,8 +86,10 @@ def exception_handler(ex_cls, ex, tb):
     if gui:
         QMessageBox.critical(None,"Error", "An error was encountered. Please read %s" % basename(errorlog))
     
+if getattr(sys, 'frozen', False):
+    logging.basicConfig(format='%(asctime)s %(levelname)s:\n%(message)s', filename=errorlog, level=logging.WARNING)
+    sys.excepthook = exception_handler
 
-sys.excepthook = exception_handler
 
 class EliteOCR(QMainWindow, Ui_MainWindow):
     def __init__(self, app):            
