@@ -72,7 +72,8 @@ if sys.platform=='darwin':
     from Foundation import NSSearchPathForDirectoriesInDomains, NSLibraryDirectory, NSUserDomainMask, NSLocalDomainMask
     errorlog = join(NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask|NSLocalDomainMask, True)[0], 'Logs', 'EliteOCR.log')
 else:
-    errorlog = 'errorlog.txt'
+    from tempfile import gettempdir
+    errorlog = join(gettempdir(), 'EliteOCR.log')
 
 def exception_handler(ex_cls, ex, tb):
     fulltb = ''.join(traceback.format_tb(tb))

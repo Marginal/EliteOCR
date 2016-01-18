@@ -300,10 +300,7 @@ class Settings():
 
     def getPathToStorage(self):
         """Return the path to a place for writing supporting files"""
-        if platform=='win32':
-            path = join(self.getPathToSelf(), "trainingdata")	# Store writable data alongside executable
-        else:
-            path = unicode(QDesktopServices.storageLocation(QDesktopServices.DataLocation))
+        path = unicode(QDesktopServices.storageLocation(QDesktopServices.DataLocation))
         if not isdir(path):
             makedirs(path)
         return path
