@@ -159,20 +159,11 @@ class Export:
 
         id = self.parent.settings['userID']
         bpc_format = [["userID","System","Station","Commodity","Sell","Buy","Demand","","Supply","","Date"]]
-        allowedtime = datetime.utcnow() - timedelta(hours = 2)
         for row in result[1:]:
             
             if len(row[0]) == 0:
                 QMessageBox.warning(self.parent,"No System Name", "There are rows missing system name! Could not export to BPC format.")
                 return
-            #if row[0].upper() == row[1].upper():
-            #    QMessageBox.warning(self.parent,"System and station names identical", "There are rows where system and station names are identical. Export aborted.")
-            #    return
-            timescreenshot = datetime.strptime(row[9],"%Y-%m-%dT%H:%M:%S+00:00")
-            if allowedtime > timescreenshot:
-                QMessageBox.warning(self.parent,"Too old for BPC", "You have been using at least one screenshot which is too old. BPC format only allows screenshots younger than 2 hours. Export aborted.")
-                return
-            
             bpc_format.append([unicode(id)]+row)
             
         self.exportToCsv(bpc_format, file)
@@ -180,7 +171,6 @@ class Export:
         
     def eddnExport(self):
         all_rows = self.parent.result_table.rowCount()
-        allowedtime = datetime.utcnow() - timedelta(hours = 2)
         to_send = []
         sent_rows = []
         
@@ -197,14 +187,7 @@ class Export:
                 newitem = QTableWidgetItem("No system name")
                 self.parent.result_table.setItem(row, 11, newitem)
                 continue
-                
-            timescreenshot = datetime.strptime(unicode(self.parent.result_table.item(row,8).text()),"%Y-%m-%dT%H:%M:%S+00:00")
-            
-            if allowedtime > timescreenshot:
-                newitem = QTableWidgetItem("Data too old")
-                self.parent.result_table.setItem(row, 11, newitem)
-                continue
-            
+
             if not self.parent.result_table.item(row,11) is None:
                 if unicode(self.parent.result_table.item(row,11).text()) == "True":
                     continue
