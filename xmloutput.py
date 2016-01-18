@@ -4,6 +4,7 @@ import json
 import sys
 from datetime import datetime
 from os.path import dirname, join
+from settings import Settings
 
 class XMLOutput():
     def __init__(self, language, input, output, item, result, system, w, h, translate):

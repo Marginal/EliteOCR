@@ -131,11 +131,11 @@ class Calibrator(QThread):
                   u"deu": [u'NIEDRIG', u'MITTEL', u'HOCH'], 
                   u"fra": [u'FAIBLE', u'MOYEN', u'ÉLEVÉ']}
         try:
-            with codecs.open(join(self.settings.storage_path, "commodities.json"), 'r', "utf-8") as h:
-                comm_list = json.loads(h.read())
+            with codecs.open(join(self.settings.storage_path, "commodities.json"), 'r', "utf-8") as f:
+                comm_list = json.loads(f.read())
         except:
-            with codecs.open(join(self.settings.app_path, "commodities.json"), 'r', "utf-8") as h:
-                comm_list = json.loads(h.read())
+            with codecs.open(join(self.settings.app_path, "commodities.json"), 'r', "utf-8") as f:
+                comm_list = json.loads(f.read())
         if language == "big" or language == "eng":
             comm_list = [k for k, v in comm_list.iteritems()]
         else:
