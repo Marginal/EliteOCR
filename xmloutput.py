@@ -3,11 +3,12 @@ import codecs
 import json
 import sys
 from datetime import datetime
-from os.path import dirname
+from os.path import dirname, join
 
 class XMLOutput():
     def __init__(self, language, input, output, item, result, system, w, h, translate):
         self.lang = language
+        self.settings = Settings()
 
         if getattr(sys, 'frozen', False):
             self.app_path = dirname(sys.executable)
@@ -56,8 +57,12 @@ class XMLOutput():
         
     def translate(self, result):
         language = self.lang
-        file = codecs.open(self.app_path + os.sep +"commodities.json", 'r')
-        self.comm_list = json.loads(file.read())
+        try:
+            with codecs.open(join(self.settings.storage_path, "commodities.json"), 'r', "utf-8") as h:
+                self.comm_list = json.loads(h.read())
+        except:
+            with codecs.open(join(self.settings.app_path, "commodities.json"), 'r', "utf-8") as h:
+                self.comm_list = json.loads(h.read())
         levels = {u"LOW":{u"deu":u"NIEDRIG", u"fra":u"FAIBLE"},
                   u"MED":{u"deu":u"MITTEL", u"fra":u"MOYEN"},
                   u"HIGH":{u"deu":u"HOCH", u"fra":u"ÉLEVÉ"}}

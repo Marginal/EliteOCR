@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+from os.path import join
 import cv2
 import math
 import tesseract
@@ -358,7 +359,7 @@ class TesseractMarket1:
         return linelist
 
 class Levenshtein:
-    def __init__(self, ocr_data, path, language = "big"):
+    def __init__(self, ocr_data, settings, language = "big"):
         if language == "big":
             self.lang = u"eng"
         else:
@@ -367,11 +368,12 @@ class Levenshtein:
         self.levels = {u"eng": [u'LOW', u'MED', u'HIGH'],
                        u"deu": [u'NIEDRIG', u'MITTEL', u'HOCH'], 
                        u"fra": [u'FAIBLE', u'MOYEN', u'ÉLEVÉ']}
-        file = codecs.open(path + os.sep + "commodities.json", 'r', "utf-8")
-        self.comm_list = json.loads(file.read())
-        file.close()
-        #print self.comm_list
-        #self.comm_list.sort(key = len)
+        try:
+            with codecs.open(join(settings.storage_path, "commodities.json"), 'r', "utf-8") as h:
+                self.comm_list = json.loads(h.read())
+        except:
+            with codecs.open(join(settings.app_path, "commodities.json"), 'r', "utf-8") as h:
+                self.comm_list = json.loads(h.read())
         if language == "big" or language == "eng":
             self.comm_list = [k for k, v in self.comm_list.iteritems()]
         else:

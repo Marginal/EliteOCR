@@ -1,9 +1,19 @@
 # -*- coding: utf-8 -*-
-from PyQt4.QtGui import QDialog, QTableWidgetItem
+from PyQt4.QtGui import QApplication, QDialog, QTableWidgetItem
 from editorUI import Ui_Editor
 import os
+from os.path import join
 import json
 import codecs
+
+try:
+    _encoding = QApplication.UnicodeUTF8
+    def _translate(context, text, disambig):
+        return QApplication.translate(context, text, disambig, _encoding)
+except AttributeError:
+    def _translate(context, text, disambig):
+        return QApplication.translate(context, text, disambig)
+
 
 class EditorDialog(QDialog, Ui_Editor):
     def __init__(self, settings):
@@ -14,16 +24,19 @@ class EditorDialog(QDialog, Ui_Editor):
         self.add_button.clicked.connect(self.addCommodity)
         self.delete_button.clicked.connect(self.deleteCommodity)
 
-        file = codecs.open(self.settings.app_path + ""+ os.sep +"commodities.json", 'r', "utf-8")
-        file_content = file.read()
-        commdict = json.loads(file_content)
-        file.close()
+        try:
+            with codecs.open(join(self.settings.storage_path, "commodities.json"), 'r', "utf-8") as h:
+                commdict = json.loads(h.read())
+        except:
+            with codecs.open(join(self.settings.app_path, "commodities.json"), 'r', "utf-8") as h:
+                commdict = json.loads(h.read())
         # WTF? Clean it!
         titles = []
         for k, v in commdict.iteritems():
             titles = commdict[k].keys()
             break
-        titles.remove("rare")
+        if "rare" in titles:
+            titles.remove("rare")
         if unicode(self.settings["ocr_language"]) in titles:
             titles.remove(unicode(self.settings["ocr_language"]))
             titles.insert(0,unicode(self.settings["ocr_language"]))
@@ -33,7 +46,7 @@ class EditorDialog(QDialog, Ui_Editor):
         totable = []
         for k, v in commdict.iteritems():
             rest = [commdict[k][i] for i in titles]
-            totable.append([commdict[k]["rare"], k] + rest)
+            totable.append([_translate("EliteOCR", commdict[k].get("rare", False) and "Yes" or "No", None), k] + rest)
             
         #print totable
         totable.sort(key=lambda x: x[1])
@@ -47,7 +60,8 @@ class EditorDialog(QDialog, Ui_Editor):
         
     def addCommodity(self):
         self.table.setRowCount(self.table.rowCount()+1)
-        
+        self.table.selectRow(self.table.rowCount()-1)
+
     def deleteCommodity(self):
         self.table.removeRow(self.table.currentRow())
     
@@ -59,18 +73,15 @@ class EditorDialog(QDialog, Ui_Editor):
         for row in xrange(all_rows):
             if (not self.table.item(row,0) is None) and (not self.table.item(row,1) is None):
                 save_dict[unicode(self.table.item(row,1).text())] = {}
-                save_dict[unicode(self.table.item(row,1).text())][unicode(self.table.horizontalHeaderItem(0).text())] = unicode(self.table.item(row,0).text())
+                if self.table.item(row,0).text().toLower() == _translate("EliteOCR", "Yes", None).toLower():
+                    save_dict[unicode(self.table.item(row,1).text())][unicode(self.table.horizontalHeaderItem(0).text())] = True
                 for col in xrange(2,all_cols):
                     if not self.table.item(row,col) is None:
                         save_dict[unicode(self.table.item(row,1).text())][unicode(self.table.horizontalHeaderItem(col).text())] = unicode(self.table.item(row,col).text())
                     else:
                         save_dict[unicode(self.table.item(row,1).text())][unicode(self.table.horizontalHeaderItem(col).text())] = u""
-                    #line = self.result_table.item(row,9).text()
-        #print save_dict
-        
-        file = codecs.open(self.settings.app_path + ""+ os.sep +"commodities.json", 'w', "utf-8")
-        file.write(json.dumps(save_dict, indent=2, separators=(',', ': '), ensure_ascii=False))
-        file.close()
-        
+
+        with codecs.open(join(self.settings.storage_path, "commodities.json"), 'w', "utf-8") as h:
+            h.write(json.dumps(save_dict, indent=2, sort_keys=True, separators=(',', ': '), ensure_ascii=False))
+
         self.close()
-        

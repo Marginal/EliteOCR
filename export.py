@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import sys
 import os
+from os.path import join
 import codecs
 import json
 from datetime import datetime, timedelta
@@ -17,8 +18,12 @@ class Export:
     
     def translate(self, input):
         language = unicode(self.parent.settings["ocr_language"])
-        file = codecs.open(self.parent.settings.app_path + ""+ os.sep +"commodities.json", 'r')
-        self.comm_list = json.loads(file.read())
+        try:
+            with codecs.open(join(self.parent.settings.storage_path, "commodities.json"), 'r', "utf-8") as h:
+                self.comm_list = json.loads(h.read())
+        except:
+            with codecs.open(join(self.parent.settings.app_path, "commodities.json"), 'r', "utf-8") as h:
+                self.comm_list = json.loads(h.read())
         if language == "big" or language == "eng":
             return input
         else:

@@ -39,7 +39,7 @@ class OCR():
         #for line in market.result:
         #    print line.name
         if levenshtein:
-            Levenshtein(market.result, self.settings.app_path, self.lang, levels)
+            Levenshtein(market.result, self.settings, self.lang, levels)
         return market.result
     
     def makeStationImgClean(self, station):

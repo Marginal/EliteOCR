@@ -8,11 +8,10 @@ from PyQt4.QtCore import QSettings, QThread, SIGNAL
 from PyQt4.QtGui import QColor
 from settings import Settings
 from imageprocessing import contBright
-from settings import Settings
 from Levenshtein import ratio, distance
 import sys
 import os
-from os.path import isdir
+from os.path import isdir, join
 from os import listdir
 from collections import Counter
 from colorthief import ColorThief
@@ -131,11 +130,12 @@ class Calibrator(QThread):
         levels = {u"eng": [u'LOW', u'MED', u'HIGH'],
                   u"deu": [u'NIEDRIG', u'MITTEL', u'HOCH'], 
                   u"fra": [u'FAIBLE', u'MOYEN', u'ÉLEVÉ']}
-        file = codecs.open(self.settings.app_path + os.sep +"commodities.json", 'r', "utf-8")
-        comm_list = json.loads(file.read())
-        file.close()
-        #print self.comm_list
-        #self.comm_list.sort(key = len)
+        try:
+            with codecs.open(join(self.settings.storage_path, "commodities.json"), 'r', "utf-8") as h:
+                comm_list = json.loads(h.read())
+        except:
+            with codecs.open(join(self.settings.app_path, "commodities.json"), 'r', "utf-8") as h:
+                comm_list = json.loads(h.read())
         if language == "big" or language == "eng":
             comm_list = [k for k, v in comm_list.iteritems()]
         else:
