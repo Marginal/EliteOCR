@@ -246,6 +246,10 @@ class EliteOCR(QMainWindow, Ui_MainWindow):
                 QMessageBox.information(self,"Restart the Game", "Please restart the game to apply the change in AppConfig.xml")
 
     def resizeElements(self):
+        self.demand.setVisible(False)
+        self.demand_text_img.setVisible(False)
+        self.supply.setVisible(False)
+        self.supply_text_img.setVisible(False)
         fields = [self.system_name, self.station_name, self.name, self.sell, self.buy, self.demand_num, self.demand, self.supply_num, self.supply, self.label_12, self.file_label, self.system_not_found]
         for field in fields:
             field.setMinimumSize(QSize(0, self.settings['input_size']))
@@ -409,9 +413,10 @@ class EliteOCR(QMainWindow, Ui_MainWindow):
                                                      'demand', 'dem', 'supply',
                                                      'sup', 'timestamp','system','img_height'])
         """
-        self.result_table.setColumnHidden(8, True)
-        self.result_table.setColumnHidden(10, True)
-        #self.result_table.setColumnHidden(11, True)
+        self.result_table.setColumnHidden(5, True)	# Dem. Level
+        self.result_table.setColumnHidden(7, True)	# Sup. Level
+        self.result_table.setColumnHidden(8, True)	# Timestamp
+        self.result_table.setColumnHidden(10, True)	# Img. Height
         pass
 
     def openHelp(self):
