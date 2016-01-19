@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<?define PRODUCTNAME = "EliteOCR"?>
+<?define PRODUCTLONGNAME = "EliteOCR"?>
+<?define PRODUCTVERSION = "!(bind.fileVersion.MainExecutable.exe)" ?>
+<?define UPGRADECODE = "793CFD3B-19AB-4D94-8405-A7FA6A343614" ?>
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	<Product Id="*"
+			 Name="$(var.PRODUCTLONGNAME)"
+			 Version="$(var.PRODUCTVERSION)"
+			 UpgradeCode="$(var.UPGRADECODE)"
+			 Language="!(bind.fileLanguage.MainExecutable.exe)"
+			 Manufacturer="Marginal">
+
+		<Package Id="*" Keywords="Installer"
+				 Description="$(var.PRODUCTLONGNAME) installer"
+				 InstallerVersion="300" Compressed="yes"
+				 Platform="x86"
+				 Languages="1033" />
+
+		<!-- Always reinstall since patching is problematic -->
+		<MajorUpgrade AllowSameVersionUpgrades="yes" DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+
+		<Media Id="1" Cabinet="product.cab" EmbedCab="yes" />
+
+		<Icon Id="EliteOCR.exe" SourceFile="icon.ico"/>
+
+		<!-- For Add/Remove programs -->
+		<Property Id="ARPPRODUCTICON" Value="EliteOCR.exe" />
+		<!-- <Property Id="ARPNOREPAIR" Value="yes" Secure="yes" />	 Remove repair -->
+		<Property Id="ARPNOMODIFY" Value="yes" Secure="yes" />	<!-- Remove modify - also set by WixUI_Minimal -->
+		<Property Id="ARPHELPLINK" Value="http://eliteocr.sourceforge.net/" />
+
+		<!-- http://blogs.technet.com/b/alexshev/archive/2008/02/09/from-msi-to-wix-part-2.aspx -->
+		<CustomAction Id="SetARPINSTALLLOCATION" Property="ARPINSTALLLOCATION" Value="[INSTALLDIR]" />
+		<InstallExecuteSequence>
+			<Custom Action="SetARPINSTALLLOCATION" After="InstallValidate"></Custom>
+		</InstallExecuteSequence>
+
+		<!-- Merge in C runtime -->
+		<DirectoryRef Id="TARGETDIR">
+			<Merge Id="VCRedist90" SourceFile="C:\Program Files (x86)\Common Files\Merge Modules\Microsoft_VC90_CRT_x86.msm" DiskId="1" Language="0"/>
+		</DirectoryRef>
+		<Feature Id="VCRedist90" Title="Visual C++ 9.0 Runtime" AllowAdvertise="no" Display="hidden" Level="1">
+			<MergeRef Id="VCRedist90"/>
+		</Feature>
+
+		<Directory Id="TARGETDIR" Name="SourceDir">
+
+			<Directory Id="ProgramMenuFolder" Name="Programs">
+			</Directory>
+
+			<!-- Generate with `heat.exe dir dist.win32 -ag -sfrag -suid -out foo.wxs` -->
+
+			<Directory Id="ProgramFilesFolder">
+
+				<Directory Id="INSTALLDIR" Name="$(var.PRODUCTNAME)">
+					<Component Id="MainExecutable" Guid="{742FBD96-6A88-43C7-B3FF-F7F2295B247B}">
+						<File Id="MainExecutable.exe" KeyPath="yes" Source="SourceDir\EliteOCR.exe" />
+						<Shortcut Id="MainExeShortcut" Directory="ProgramMenuFolder" Name="$(var.PRODUCTLONGNAME)" Description="OCR commodity market data from Elite: Dangerous" WorkingDirectory="INSTALLDIR" Icon="EliteOCR.exe" IconIndex="0" Advertise="yes" />
+					</Component>
+
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\_ctypes.pyd" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\_elementtree.pyd" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\_hashlib.pyd" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\_socket.pyd" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\_ssl.pyd" />
+					</Component>
+					<Component Guid="*">
+                    <File KeyPath="yes" Source="SourceDir\base_training_data.pck" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\bitarray._bitarray.pyd" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\bz2.pyd" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\commodities.json" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\cv2.pyd" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\EliteOCR.VisualElementsManifest.xml" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\EliteOCRcmd.exe" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\gevent._semaphore.pyd" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\gevent._util.pyd" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\gevent.ares.pyd" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\gevent.core.pyd" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\greenlet.pyd" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\letters.xml" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\Levenshtein._levenshtein.pyd" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\LIBEAY32.dll" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\libiomp5md.dll" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\library.zip" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\lxml.etree.pyd" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\numbers.xml" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\numpy.core._dotblas.pyd" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\numpy.core.multiarray.pyd" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\numpy.core.scalarmath.pyd" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\numpy.core.umath.pyd" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\numpy.fft.fftpack_lite.pyd" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\numpy.lib._compiled_base.pyd" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\numpy.linalg.lapack_lite.pyd" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\numpy.random.mtrand.pyd" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\pyexpat.pyd" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\PyQt4.QtCore.pyd" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\PyQt4.QtGui.pyd" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\PyQt4.QtNetwork.pyd" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\PyQt4.QtWebKit.pyd" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\python27.dll" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\pywintypes27.dll" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\qt.conf" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\QtCore4.dll" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\QtGui4.dll" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\QtNetwork4.dll" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\QtWebKit4.dll" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\select.pyd" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\sip.pyd" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\SSLEAY32.dll" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\station.xml" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\unicodedata.pyd" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\win32api.pyd" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\win32pdh.pyd" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\win32pipe.pyd" />
+					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\win32wnet.pyd" />
+					</Component>
+					<Directory Id="help" Name="help">
+						<Component Guid="*">
+							<File KeyPath="yes" Source="SourceDir\help\1.html" />
+						</Component>
+						<Component Guid="*">
+							<File KeyPath="yes" Source="SourceDir\help\2.html" />
+						</Component>
+						<Component Guid="*">
+							<File KeyPath="yes" Source="SourceDir\help\3.html" />
+						</Component>
+						<Component Guid="*">
+							<File KeyPath="yes" Source="SourceDir\help\4.html" />
+						</Component>
+						<Component Guid="*">
+							<File KeyPath="yes" Source="SourceDir\help\5.html" />
+						</Component>
+						<Component Guid="*">
+							<File KeyPath="yes" Source="SourceDir\help\a.html" />
+						</Component>
+						<Component Guid="*">
+							<File KeyPath="yes" Source="SourceDir\help\b.html" />
+						</Component>
+						<Component Guid="*">
+							<File KeyPath="yes" Source="SourceDir\help\c.html" />
+						</Component>
+						<Component Guid="*">
+							<File KeyPath="yes" Source="SourceDir\help\d.html" />
+						</Component>
+						<Component Guid="*">
+							<File KeyPath="yes" Source="SourceDir\help\e.html" />
+						</Component>
+						<Component Guid="*">
+							<File KeyPath="yes" Source="SourceDir\help\f.html" />
+						</Component>
+						<Component Guid="*">
+							<File KeyPath="yes" Source="SourceDir\help\g.html" />
+						</Component>
+						<Component Guid="*">
+							<File KeyPath="yes" Source="SourceDir\help\h.html" />
+						</Component>
+						<Component Guid="*">
+							<File KeyPath="yes" Source="SourceDir\help\index.html" />
+						</Component>
+					</Directory>
+					<Directory Id="plugins" Name="plugins">
+						<Directory Id="TD_Export" Name="TD_Export">
+							<Component Guid="*">
+								<File KeyPath="yes" Source="SourceDir\plugins\TD_Export\TD_Export.py" />
+							</Component>
+						</Directory>
+					</Directory>
+					<Directory Id="qt_plugins" Name="qt_plugins">
+						<Directory Id="imageformats" Name="imageformats">
+							<Component Guid="*">
+								<File KeyPath="yes" Source="SourceDir\qt_plugins\imageformats\qgif4.dll" />
+							</Component>
+							<Component Guid="*">
+								<File KeyPath="yes" Source="SourceDir\qt_plugins\imageformats\qico4.dll" />
+							</Component>
+						</Directory>
+					</Directory>
+					<Directory Id="translations" Name="translations">
+						<Component Guid="*">
+							<File KeyPath="yes" Source="SourceDir\translations\EliteOCR_de.qm" />
+						</Component>
+						<Component Guid="*">
+							<File KeyPath="yes" Source="SourceDir\translations\EliteOCR_fr.qm" />
+						</Component>
+					</Directory>
+				</Directory>
+			</Directory>
+		</Directory>
+
+		<Feature Id='Complete' Level='1'>
+			<ComponentRef Id="MainExecutable" />
+			<ComponentRef Id="_ctypes.pyd" />
+			<ComponentRef Id="_elementtree.pyd" />
+			<ComponentRef Id="_hashlib.pyd" />
+			<ComponentRef Id="_socket.pyd" />
+			<ComponentRef Id="_ssl.pyd" />
+			<ComponentRef Id="base_training_data.pck" />
+			<ComponentRef Id="bitarray._bitarray.pyd" />
+			<ComponentRef Id="bz2.pyd" />
+			<ComponentRef Id="commodities.json" />
+			<ComponentRef Id="cv2.pyd" />
+			<ComponentRef Id="EliteOCR.VisualElementsManifest.xml" />
+			<ComponentRef Id="EliteOCRcmd.exe" />
+			<ComponentRef Id="gevent._semaphore.pyd" />
+			<ComponentRef Id="gevent._util.pyd" />
+			<ComponentRef Id="gevent.ares.pyd" />
+			<ComponentRef Id="gevent.core.pyd" />
+			<ComponentRef Id="greenlet.pyd" />
+			<ComponentRef Id="letters.xml" />
+			<ComponentRef Id="Levenshtein._levenshtein.pyd" />
+			<ComponentRef Id="LIBEAY32.dll" />
+			<ComponentRef Id="libiomp5md.dll" />
+			<ComponentRef Id="library.zip" />
+			<ComponentRef Id="lxml.etree.pyd" />
+			<ComponentRef Id="numbers.xml" />
+			<ComponentRef Id="numpy.core._dotblas.pyd" />
+			<ComponentRef Id="numpy.core.multiarray.pyd" />
+			<ComponentRef Id="numpy.core.scalarmath.pyd" />
+			<ComponentRef Id="numpy.core.umath.pyd" />
+			<ComponentRef Id="numpy.fft.fftpack_lite.pyd" />
+			<ComponentRef Id="numpy.lib._compiled_base.pyd" />
+			<ComponentRef Id="numpy.linalg.lapack_lite.pyd" />
+			<ComponentRef Id="numpy.random.mtrand.pyd" />
+			<ComponentRef Id="pyexpat.pyd" />
+			<ComponentRef Id="PyQt4.QtCore.pyd" />
+			<ComponentRef Id="PyQt4.QtGui.pyd" />
+			<ComponentRef Id="PyQt4.QtNetwork.pyd" />
+			<ComponentRef Id="PyQt4.QtWebKit.pyd" />
+			<ComponentRef Id="python27.dll" />
+			<ComponentRef Id="pywintypes27.dll" />
+			<ComponentRef Id="qt.conf" />
+			<ComponentRef Id="QtCore4.dll" />
+			<ComponentRef Id="QtGui4.dll" />
+			<ComponentRef Id="QtNetwork4.dll" />
+			<ComponentRef Id="QtWebKit4.dll" />
+			<ComponentRef Id="select.pyd" />
+			<ComponentRef Id="sip.pyd" />
+			<ComponentRef Id="SSLEAY32.dll" />
+			<ComponentRef Id="station.xml" />
+			<ComponentRef Id="unicodedata.pyd" />
+			<ComponentRef Id="win32api.pyd" />
+			<ComponentRef Id="win32pdh.pyd" />
+			<ComponentRef Id="win32pipe.pyd" />
+			<ComponentRef Id="win32wnet.pyd" />
+			<ComponentRef Id="_1.html" />
+			<ComponentRef Id="_2.html" />
+			<ComponentRef Id="_3.html" />
+			<ComponentRef Id="_4.html" />
+			<ComponentRef Id="_5.html" />
+			<ComponentRef Id="a.html" />
+			<ComponentRef Id="b.html" />
+			<ComponentRef Id="c.html" />
+			<ComponentRef Id="d.html" />
+			<ComponentRef Id="e.html" />
+			<ComponentRef Id="f.html" />
+			<ComponentRef Id="g.html" />
+			<ComponentRef Id="h.html" />
+			<ComponentRef Id="index.html" />
+			<ComponentRef Id="TD_Export.py" />
+			<ComponentRef Id="qgif4.dll" />
+			<ComponentRef Id="qico4.dll" />
+			<ComponentRef Id="EliteOCR_de.qm" />
+			<ComponentRef Id="EliteOCR_fr.qm" />
+		</Feature>
+
+	</Product>
+</Wix>
+
+<!-- Local Variables: -->
+<!-- tab-width: 4     -->
+<!-- End:             -->

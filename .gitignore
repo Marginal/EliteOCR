@@ -193,7 +193,8 @@ $RECYCLE.BIN/
 # Packages
 *.egg
 *.egg-info
-dist/
+dist.macosx/
+dist.win32/
 build/
 eggs/
 parts/
@@ -202,32 +203,9 @@ sdist/
 develop-eggs/
 .installed.cfg
 
-# Installer logs
-pip-log.txt
-
 # Unit test / coverage reports
 .coverage
 .tox
 
 #Translations
 *.mo
-
-#Mr Developer
-.mr.developer.cfg
-
-#jetbrains project files
-.idea
-.idea/
-.idea/*
-
-#Compiled files for release
-compiled
-
-# Neural Net training/source data
-nn_training_images
-
-# pyinstaller spec
-EliteOCR.spec
-
-# file generated during build
-EliteOCRcmd.py

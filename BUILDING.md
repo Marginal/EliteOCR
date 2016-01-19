@@ -116,16 +116,15 @@ To create a standalone application
 
 Windows:
 
-    pip install pyinstaller
-    python make.py
+* Requires py2exe 0.6.x
+* Requires [WiX Toolset](http://wixtoolset.org/)
+* Run `python -OO setup-win.py py2exe`
 
 Mac:
 
-* [https://github.com/sparkle-project/Sparkle/releases/latest](https://github.com/sparkle-project/Sparkle/releases/latest)
-* Copy Sparkle.framework to /Library/Frameworks
-
-    	easy_install -U py2app
-    	./make.sh
+* Requires py2app 0.9.x
+* Requires [Sparkle.framework](https://github.com/sparkle-project/Sparkle) installed in /Library/Frameworks
+* Run `python -OO setup-mac.py py2app`
 
 
 Run on Ubuntu
