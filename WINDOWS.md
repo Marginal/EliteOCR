@@ -31,7 +31,7 @@ Dependencies to run from source on Windows
 
 #### Other dependencies
 
-    pip install qimage2ndarray openpyxl ezodf lxml python-Levenshtein pytz tzlocal requests grequests bitarray BeautifulSoup4
+    pip install qimage2ndarray openpyxl ezodf lxml python-Levenshtein requests grequests bitarray BeautifulSoup4
 
 
 Running from source
@@ -40,5 +40,8 @@ Run EliteOCR.py
 
 To create a standalone application
 --------------
-    pip install pyinstaller
-    python make.py
+
+* Requires py2exe 0.6.x
+* Requires WinSparkle.dll & .pdb from [WinSparkle](https://github.com/vslavik/winsparkle) copied to the current directory
+* Requires [WiX Toolset](http://wixtoolset.org/)
+* Run `python -OO setup-win.py py2exe`

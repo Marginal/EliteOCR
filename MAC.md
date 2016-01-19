@@ -67,19 +67,17 @@ Dependencies to run from source on Mac
 
 #### Other dependencies
 
-    pip install qimage2ndarray openpyxl ezodf lxml python-Levenshtein pytz tzlocal requests grequests bitarray BeautifulSoup4
+    easy_install -Z install qimage2ndarray openpyxl ezodf lxml python-Levenshtein requests grequests bitarray BeautifulSoup4
 
 
 Running from source
 --------------
-Run EliteOCR.py
+Run `EliteOCR.py`
 
 
 To create a standalone application
 --------------
 
-* [https://github.com/sparkle-project/Sparkle/releases/latest](https://github.com/sparkle-project/Sparkle/releases/latest)
-* Copy Sparkle.framework to /Library/Frameworks
-
-    	easy_install -U py2app
-    	./make.sh
+* Requires py2app 0.9.x
+* Requires [Sparkle.framework](https://github.com/sparkle-project/Sparkle) installed in /Library/Frameworks
+* Run `python -OO setup-mac.py py2app`
