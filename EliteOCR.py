@@ -60,7 +60,7 @@ except AttributeError:
     def _translate(context, text, disambig):
         return QApplication.translate(context, text, disambig)
 
-appversion = "0.7"
+appversion = "0.8"
 gui = False
 
 if sys.platform=='darwin':
