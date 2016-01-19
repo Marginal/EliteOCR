@@ -117,6 +117,7 @@ To create a standalone application
 Windows:
 
 * Requires py2exe 0.6.x
+* Requires WinSparkle.dll & .pdb from [WinSparkle](https://github.com/vslavik/winsparkle) copied to the current directory
 * Requires [WiX Toolset](http://wixtoolset.org/)
 * Run `python -OO setup-win.py py2exe`
 

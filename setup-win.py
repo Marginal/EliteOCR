@@ -110,3 +110,29 @@ PKG = '%s_win_%s.msi' % (APPNAME, VERSION)
 os.system(r'"%s\candle.exe" -out %s\ %s.wxs' % (WIXPATH, DIST, APPNAME))
 if exists('%s/%s.wixobj' % (DIST, APPNAME)):
     os.system(r'"%s\light.exe" -sacl -spdb -sw1076 %s\%s.wixobj -out %s' % (WIXPATH, DIST, APPNAME, PKG))
+
+# Make appcast entry
+with open('appcast_win_%s.xml' % VERSION, 'w') as appcast:
+    appcast.write('''
+\t\t<item>
+\t\t\t<title>Release {0}</title>
+\t\t\t<description>
+    \t\t\t\t<![CDATA[<style>body {{ font-family:"Segoe UI","Tahoma"; font-size: 75%; }} h2 {{ font-family:"Segoe UI","Tahoma"; font-size: 105%; }}</style>
+<h2>Release {0}</h2>
+<ul>
+
+</ul>
+\t\t\t\t]]>
+\t\t\t</description>
+\t\t\t<enclosure
+\t\t\t\turl="http://sourceforge.net/projects/eliteocr/files/{0}/{1}/download"
+\t\t\t\tsparkle:os="windows"
+\t\t\t\tsparkle:installerArguments="/passive"
+\t\t\t\tsparkle:version="{0}"
+\t\t\t\tlength="{2}"
+\t\t\t\ttype="application/octet-stream"
+\t\t\t/>
+\t\t</item>
+'''.format(VERSION,
+           PKG,
+           os.stat(PKG).st_size))

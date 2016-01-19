@@ -209,3 +209,6 @@ develop-eggs/
 
 #Translations
 *.mo
+
+# WinSparkle
+WinSparkle.*

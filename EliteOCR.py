@@ -42,16 +42,11 @@ from engine import OCRAreasFinder
 from setupwizard import SetupWizard
 from colorwizard import ColorCalibrationWizard
 from learningwizard import LearningWizard
+from update import Updater
 
 from openpyxl import Workbook
 from ezodf import newdoc, Sheet
 
-# Updates
-if sys.platform=='darwin':
-    from macupdate import Updater
-else:
-    from threadworker import Worker
-    from update import UpdateDialog
 
 #plugins
 import imp
@@ -173,7 +168,6 @@ class EliteOCR(QMainWindow, Ui_MainWindow):
         self.zoom_button.clicked.connect(self.drawOCRPreview)
         
         QObject.connect(self.actionHelp, SIGNAL('triggered()'), self.openHelp)
-        QObject.connect(self.actionUpdate, SIGNAL('triggered()'), self.openUpdate)
         QObject.connect(self.actionAbout, SIGNAL('triggered()'), self.About)
         QObject.connect(self.actionOpen, SIGNAL('triggered()'), self.addFiles)
         QObject.connect(self.actionPreferences, SIGNAL('triggered()'), self.openSettings)
@@ -183,49 +177,43 @@ class EliteOCR(QMainWindow, Ui_MainWindow):
         QObject.connect(self.actionColor_Calibration, SIGNAL('triggered()'), self.openCalibration)
         QObject.connect(self.actionLearning_Wizard, SIGNAL('triggered()'), self.openLearning)
         
-        self.error_close = False
-
         #set up required items for nn
         #self.training_image_dir = unicode(self.settings.app_path)+u""+ os.sep +"nn_training_images"+ os.sep +""
         
         self.loadPlugins()
         self.restorePos()
-        
+        self.show()
+
+        QTimer.singleShot(0, self.startup)
+
+    def startup(self):
+
+        # Load updater after UI creation (for WinSparkle)
+        self.updater = Updater(self)
+        QObject.connect(self.actionUpdate, SIGNAL('triggered()'), self.updater.checkForUpdates)
+
         self.eddnthread = EDDNExport(self)
         QObject.connect(self.eddnthread, SIGNAL('finished(QString, PyQt_PyObject)'), self.export.eddnFinished)
         QObject.connect(self.eddnthread, SIGNAL('update(int,int)'), self.export.eddnUpdate)
 
-        if sys.platform=='darwin':
-            Updater.checkForUpdateInformation(self.showUpdateAvailable)
-        else:
-            self.thread = Worker()
-            self.connect(self.thread, SIGNAL("output(QString, QString)"), self.showUpdateAvailable)
-            self.thread.check(self.appversion)
-
-        """
-        if not self.settings.reg.contains('info_accepted'):
-            self.infoDialog = InfoDialog()
-            self.infoDialog.exec_()
-        else:
-            if not self.settings['info_accepted']:
-                self.infoDialog = InfoDialog()
-                self.infoDialog.exec_()
-        """
         if self.settings['first_run']:
-            self.openWizard()
-            self.openCalibration()
-            self.settings.setValue('first_run', False)
+            if self.isVisible():
+                self.openWizard()
+            if self.isVisible():
+                self.openCalibration()
+                self.settings.setValue('first_run', False)
         else:
             datapath = (self.settings.storage_path + os.sep + "user_station.xml").encode(sys.getfilesystemencoding())
-            if not isfile(datapath):
+            if not isfile(datapath) and self.isVisible():
                 msg = _translate("EliteOCR", "It appears you did not train EliteOCR. Training is essential in order to minimize the amount of OCR errors. Would you like to start the Learning Wizard now?", None)
-                if QMessageBox.question(self, 'Training', msg, _translate("EliteOCR","Yes", None), _translate("EliteOCR","No", None)) == 0:
+                reply = QMessageBox.question(self, 'Training', msg, QMessageBox.Yes, QMessageBox.No)
+                if reply == QMessageBox.Yes:
                     learningWizard = LearningWizard(self.settings)
                     learningWizard.exec_()
             
-        self.checkAppConfigXML()
-        #QTimer.singleShot(2000, self.autoRun)
-    
+        if self.isVisible():
+            self.checkAppConfigXML()
+
     def openWizard(self):
         setupWizard = SetupWizard(self.settings)
         setupWizard.exec_()
@@ -329,10 +317,6 @@ class EliteOCR(QMainWindow, Ui_MainWindow):
 
         return style
     
-    def showUpdateAvailable(self, dir, appversion):
-        self.newupd = (dir, appversion)
-        self.statusbar.showMessage(unicode(_translate("EliteOCR","New version of EliteOCR available: %s To download it go to Help > Update", None)) % appversion, 0)
-    
     def restorePos(self):
         self.settings.reg.beginGroup("MainWindow")
         self.resize(self.settings.reg.value("size", QSize(400, 400)).toSize())
@@ -356,8 +340,18 @@ class EliteOCR(QMainWindow, Ui_MainWindow):
         if not self.busyDialog is None:
             self.busyDialog.close()
         self.app.setStyleSheet("")
+        self.updater.close()
         event.accept()
     
+    def customEvent(self, event):
+        if event.type() == self.updater.QUIT_EVENT_TYPE:
+            event.accept()
+            # dismiss setup wizard or learning dialog
+            modal = self.app.activeModalWidget()
+            if modal:
+                modal.reject()
+            self.close()
+
     def toggleMode(self):
         if self.actionPublic_Mode.isChecked():
             msg = _translate("EliteOCR","Switching to public mode will clear the result table! Are you sure you want to do it?", None)
@@ -424,15 +418,7 @@ class EliteOCR(QMainWindow, Ui_MainWindow):
         self.helpDialog = HelpDialog(self.settings.app_path)
         self.helpDialog.setModal(False)
         self.helpDialog.show()
-        
-    def openUpdate(self):
-        if sys.platform=='darwin':
-            Updater.checkForUpdates()
-        else:
-            self.updateDialog = UpdateDialog(self.settings.app_path, self.appversion, self.newupd)
-            self.updateDialog.setModal(False)
-            self.updateDialog.show()
-    
+
     def openSettings(self):
         """Open settings dialog and reload settings"""
         settingsDialog = SettingsDialog(self.settings)
@@ -1250,11 +1236,7 @@ def main(argv):
         qtTranslator = QTranslator()
         translateApp(app, qtTranslator)
 
-              
         window = EliteOCR(app)
-        if window.error_close:
-           sys.exit() 
-        window.show()
         sys.exit(app.exec_())
 
 if __name__ == '__main__':

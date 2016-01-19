@@ -220,6 +220,9 @@
 					<Component Guid="*">
 						<File KeyPath="yes" Source="SourceDir\win32wnet.pyd" />
 					</Component>
+					<Component Guid="*">
+						<File KeyPath="yes" Source="SourceDir\WinSparkle.dll" />
+					</Component>
 					<Directory Id="help" Name="help">
 						<Component Guid="*">
 							<File KeyPath="yes" Source="SourceDir\help\1.html" />
@@ -348,6 +351,7 @@
 			<ComponentRef Id="win32pdh.pyd" />
 			<ComponentRef Id="win32pipe.pyd" />
 			<ComponentRef Id="win32wnet.pyd" />
+			<ComponentRef Id="WinSparkle.dll" />
 			<ComponentRef Id="_1.html" />
 			<ComponentRef Id="_2.html" />
 			<ComponentRef Id="_3.html" />

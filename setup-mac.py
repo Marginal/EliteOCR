@@ -92,8 +92,7 @@ OPTIONS = {'dist_dir': DIST,
                          'base_training_data.pck', 'letters.xml', 'numbers.xml', 'station.xml', 'commodities.json'],
            'includes': ['PyQt4.QtNetwork'],
            'include_plugins': ['/Developer/Applications/Qt/plugins/imageformats/libqgif.dylib', '/Developer/Applications/Qt/plugins/imageformats/libqico.dylib'],
-           'excludes': ['PIL', 'setuptools', 'simplejson', 'matplotlib', 'wx',	# random modules that tend to get picked up
-                        'threadworker', 'update', 'updateUI'],  	# windows-specific source files
+           'excludes': ['PIL', 'setuptools', 'simplejson', 'matplotlib', 'wx'],	# random modules that tend to get picked up
            'plist': {
                'CFBundleName': APPNAME,
                'CFBundleIdentifier': 'com.seeebek.eliteOCR',	# matches what QSettings stores
