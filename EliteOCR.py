@@ -9,7 +9,6 @@ import re
 import getopt
 #import time
 import json
-import codecs
 from functools import partial
 from datetime import datetime, timedelta
 from time import strftime, strptime, time, clock

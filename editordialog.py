@@ -81,7 +81,7 @@ class EditorDialog(QDialog, Ui_Editor):
                     else:
                         save_dict[unicode(self.table.item(row,1).text())][unicode(self.table.horizontalHeaderItem(col).text())] = u""
 
-        with codecs.open(join(self.settings.storage_path, "commodities.json"), 'w', "utf-8") as h:
-            h.write(json.dumps(save_dict, indent=2, sort_keys=True, separators=(',', ': '), ensure_ascii=False))
+        with open(join(self.settings.storage_path, "commodities.json"), 'wt') as h:
+            h.write(json.dumps(save_dict, indent=2, sort_keys=True, separators=(',', ': '), ensure_ascii=False).encode('utf-8'))
 
         self.close()

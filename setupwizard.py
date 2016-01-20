@@ -8,7 +8,6 @@ from os import environ, listdir
 from os.path import isdir, isfile, join
 from sys import platform
 from settings import appconf, isValidLogPath, hasAppConf, hasVerboseLogging, enableVerboseLogging
-import codecs
 from engine import OCRAreasFinder
 
 #from mmcq import get_palette

@@ -52,10 +52,9 @@ class XMLOutput():
         
         #print xml
         file = unicode(output)
-        xml_file = codecs.open(file, "w", "utf-8")
-        xml_file.write(xml)
-        xml_file.close()
-        
+        with open(file, 'wt') as xml_file:
+            xml_file.write(xml.encode('utf-8'))
+
     def translate(self, result):
         language = self.lang
         try:
