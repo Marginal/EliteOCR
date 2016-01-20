@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'aboutUI.ui'
 #
-# Created: Thu Jun 18 15:27:32 2015
-#      by: PyQt4 UI code generator 4.11.2
+# Created: Wed Jan 20 07:39:12 2016
+#      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -49,6 +49,7 @@ class Ui_About(object):
         self.verticalLayout = QtGui.QVBoxLayout()
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
         self.label_3 = QtGui.QLabel(About)
+        self.label_3.setText(_fromUtf8("EliteOCR"))
         self.label_3.setObjectName(_fromUtf8("label_3"))
         self.verticalLayout.addWidget(self.label_3)
         self.version = QtGui.QLabel(About)
@@ -84,12 +85,11 @@ class Ui_About(object):
 
     def retranslateUi(self, About):
         About.setWindowTitle(_translate("About", "About", None))
-        self.label_3.setText(_translate("About", "EliteOCR", None))
         self.version.setText(_translate("About", "Version", None))
         self.label.setText(_translate("About", "\n"
 "\n"
 "Contributors:\n"
-"Seeebek, Marginal, CapCap, Gazelle, GMib, Ph.Baumann\n"
+"Seeebek, Marginal, CapCap, Gazelle, GMib, Marginal, Ph.Baumann\n"
 "\n"
 "EliteOCR is capable of reading the entries in Elite: Dangerous markets screenshots.", None))
 

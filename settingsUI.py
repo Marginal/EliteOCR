@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'settingsUI.ui'
 #
-# Created: Tue Jun 16 19:31:17 2015
-#      by: PyQt4 UI code generator 4.11.2
+# Created: Wed Jan 20 07:25:06 2016
+#      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -47,8 +47,11 @@ class Ui_Settings(object):
         self.ui_language = QtGui.QComboBox(self.tab)
         self.ui_language.setObjectName(_fromUtf8("ui_language"))
         self.ui_language.addItem(_fromUtf8(""))
+        self.ui_language.setItemText(0, _fromUtf8("en"))
         self.ui_language.addItem(_fromUtf8(""))
+        self.ui_language.setItemText(1, _fromUtf8("de"))
         self.ui_language.addItem(_fromUtf8(""))
+        self.ui_language.setItemText(2, _fromUtf8("fr"))
         self.horizontalLayout_4.addWidget(self.ui_language)
         self.label_6 = QtGui.QLabel(self.tab)
         self.label_6.setObjectName(_fromUtf8("label_6"))
@@ -63,8 +66,11 @@ class Ui_Settings(object):
         self.ocr_language.setEnabled(True)
         self.ocr_language.setObjectName(_fromUtf8("ocr_language"))
         self.ocr_language.addItem(_fromUtf8(""))
+        self.ocr_language.setItemText(0, _fromUtf8("eng"))
         self.ocr_language.addItem(_fromUtf8(""))
+        self.ocr_language.setItemText(1, _fromUtf8("deu"))
         self.ocr_language.addItem(_fromUtf8(""))
+        self.ocr_language.setItemText(2, _fromUtf8("fra"))
         self.horizontalLayout_4.addWidget(self.ocr_language)
         spacerItem1 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout_4.addItem(spacerItem1)
@@ -399,14 +405,8 @@ class Ui_Settings(object):
     def retranslateUi(self, Settings):
         Settings.setWindowTitle(_translate("Settings", "Settings", None))
         self.label_4.setText(_translate("Settings", "Interface Language:", None))
-        self.ui_language.setItemText(0, _translate("Settings", "en", None))
-        self.ui_language.setItemText(1, _translate("Settings", "de", None))
-        self.ui_language.setItemText(2, _translate("Settings", "fr", None))
         self.label_6.setText(_translate("Settings", "(restart required)", None))
         self.label_5.setText(_translate("Settings", "OCR Language:", None))
-        self.ocr_language.setItemText(0, _translate("Settings", "eng", None))
-        self.ocr_language.setItemText(1, _translate("Settings", "deu", None))
-        self.ocr_language.setItemText(2, _translate("Settings", "fra", None))
         self.translate_results.setText(_translate("Settings", "Translate results to english on export", None))
         self.auto_fill.setText(_translate("Settings", "Automatically add results with high confidence to the table", None))
         self.remove_dupli.setText(_translate("Settings", "Remove duplicates in table", None))

@@ -14,7 +14,7 @@
    <enum>Qt::TabFocus</enum>
   </property>
   <property name="windowTitle">
-   <string>EliteOCR</string>
+   <string notr="true">EliteOCR</string>
   </property>
   <property name="windowIcon">
    <iconset resource="res.qrc">
@@ -89,7 +89,7 @@
               <normaloff>:/ico/plus.png</normaloff>:/ico/plus.png</iconset>
             </property>
             <property name="shortcut">
-             <string>Alt+Q</string>
+             <string notr="true">Alt+Q</string>
             </property>
            </widget>
           </item>
@@ -106,7 +106,7 @@
               <normaloff>:/ico/minus.png</normaloff>:/ico/minus.png</iconset>
             </property>
             <property name="shortcut">
-             <string>Alt+D</string>
+	     <string notr="true">Alt+D</string>
             </property>
            </widget>
           </item>
@@ -120,7 +120,7 @@
              <string>Add all</string>
             </property>
             <property name="shortcut">
-             <string>Alt+W</string>
+	     <string notr="true">Alt+W</string>
             </property>
            </widget>
           </item>
@@ -133,7 +133,7 @@
              <string>Remove all</string>
             </property>
             <property name="shortcut">
-             <string>Alt+F</string>
+	     <string notr="true">Alt+F</string>
             </property>
            </widget>
           </item>
@@ -186,7 +186,7 @@
              <string>OCR</string>
             </property>
             <property name="shortcut">
-             <string>Alt+E</string>
+	     <string notr="true">Alt+E</string>
             </property>
            </widget>
           </item>
@@ -199,7 +199,7 @@
              <string>OCR All</string>
             </property>
             <property name="shortcut">
-             <string>Alt+R</string>
+	     <string notr="true">Alt+R</string>
             </property>
            </widget>
           </item>
@@ -717,7 +717,7 @@
                <string>Add</string>
               </property>
               <property name="shortcut">
-               <string>Alt+A</string>
+	       <string notr="true">Alt+A</string>
               </property>
              </widget>
             </item>
@@ -730,7 +730,7 @@
                <string>Skip</string>
               </property>
               <property name="shortcut">
-               <string>Alt+S</string>
+	       <string notr="true">Alt+S</string>
               </property>
              </widget>
             </item>
@@ -743,7 +743,7 @@
                <string>Next File</string>
               </property>
               <property name="shortcut">
-               <string>Alt+C</string>
+	       <string notr="true">Alt+C</string>
               </property>
              </widget>
             </item>
@@ -971,7 +971,7 @@
          <bool>false</bool>
         </property>
         <property name="text">
-         <string>Export</string>
+         <string>Export to CSV</string>
         </property>
        </widget>
       </item>

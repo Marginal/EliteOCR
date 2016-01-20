@@ -44,17 +44,17 @@
           <widget class="QComboBox" name="ui_language">
            <item>
             <property name="text">
-             <string>en</string>
+             <string notr="true">en</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>de</string>
+             <string notr="true">de</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>fr</string>
+             <string notr="true">fr</string>
             </property>
            </item>
           </widget>
@@ -99,17 +99,17 @@
            </property>
            <item>
             <property name="text">
-             <string>eng</string>
+             <string notr="true">eng</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>deu</string>
+             <string notr="true">deu</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>fra</string>
+             <string notr="true">fra</string>
             </property>
            </item>
           </widget>
