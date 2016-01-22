@@ -125,7 +125,7 @@ with open('appcast_win_%s.xml' % VERSION, 'w') as appcast:
 \t\t\t\t]]>
 \t\t\t</description>
 \t\t\t<enclosure
-\t\t\t\turl="http://sourceforge.net/projects/eliteocr/files/{0}/{1}/download"
+\t\t\t\turl="https://github.com/Marginal/EliteOCR/releases/download/{0}/{1}/download"
 \t\t\t\tsparkle:os="windows"
 \t\t\t\tsparkle:installerArguments="/passive"
 \t\t\t\tsparkle:version="{0}"
