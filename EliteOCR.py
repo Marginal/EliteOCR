@@ -19,7 +19,7 @@ from os import makedirs, listdir, remove
 from platform import system
 from PyQt4.QtGui import QApplication, QMainWindow, QFileDialog, QGraphicsScene, QMessageBox,\
                         QPixmap, QPen, QTableWidgetItem, QPushButton, QAction, QFont
-from PyQt4.QtCore import Qt, QObject, QSize, QPoint, QSettings, QString, QTranslator, QTimer, SIGNAL
+from PyQt4.QtCore import Qt, QCoreApplication, QObject, QSize, QPoint, QSettings, QString, QTranslator, QTimer, SIGNAL
 import cv2
 
 from eliteOCRGUI import Ui_MainWindow
@@ -1230,6 +1230,9 @@ def main(argv):
                 outputfile = arg
             elif opt in ("-s", "--system"):
                 system = arg
+        app = QCoreApplication(sys.argv)
+        app.setOrganizationName('seeebek')
+        app.setApplicationName('eliteOCR')
         ocr(ocr_lang, inputfile, outputfile, system, translate)
     else:
         global gui
