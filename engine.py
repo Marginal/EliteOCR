@@ -24,9 +24,9 @@ class OCRAreasFinder:
         (0.361, 0.447, FIELD_SELL,       TYPE_NUMBER),
         (0.448, 0.533, FIELD_BUY,        TYPE_NUMBER),
         (0.534, 0.624, FIELD_CARGO,      TYPE_NONE),
-        (0.625, 0.771, FIELD_DEMAND_NUM, TYPE_NUMBER),
+        (0.625, 0.780, FIELD_DEMAND_NUM, TYPE_NUMBER),
         (0.772, 0.802, FIELD_DEMAND,     TYPE_NONE),
-        (0.805, 0.969, FIELD_SUPPLY_NUM, TYPE_NUMBER),
+        (0.805, 0.980, FIELD_SUPPLY_NUM, TYPE_NUMBER),
         (0.970, 1.0,   FIELD_SUPPLY,     TYPE_NONE)
     ]
 
@@ -234,6 +234,8 @@ class MLP:
         # if __debug__:
         #     cv2.imshow("x", input)
         #     cv2.waitKey(0)
+        #     for (x0, x1, f, t) in self.areas:
+        #         cv2.rectangle(input,(int(x0),0),(int(x1),rows),(0,0,0),1)
         #     for line in lines:
         #         cv2.rectangle(input,(line[0],line[2]),(line[1],line[3]),(0,0,0),1)
         #     cv2.imshow("x", input)
