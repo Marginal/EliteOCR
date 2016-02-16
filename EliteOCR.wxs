@@ -176,9 +176,6 @@
 						<File KeyPath="yes" Source="SourceDir\python27.dll" />
 					</Component>
 					<Component Guid="*">
-						<File KeyPath="yes" Source="SourceDir\pywintypes27.dll" />
-					</Component>
-					<Component Guid="*">
 						<File KeyPath="yes" Source="SourceDir\qt.conf" />
 					</Component>
 					<Component Guid="*">
@@ -207,18 +204,6 @@
 					</Component>
 					<Component Guid="*">
 						<File KeyPath="yes" Source="SourceDir\unicodedata.pyd" />
-					</Component>
-					<Component Guid="*">
-						<File KeyPath="yes" Source="SourceDir\win32api.pyd" />
-					</Component>
-					<Component Guid="*">
-						<File KeyPath="yes" Source="SourceDir\win32pdh.pyd" />
-					</Component>
-					<Component Guid="*">
-						<File KeyPath="yes" Source="SourceDir\win32pipe.pyd" />
-					</Component>
-					<Component Guid="*">
-						<File KeyPath="yes" Source="SourceDir\win32wnet.pyd" />
 					</Component>
 					<Component Guid="*">
 						<File KeyPath="yes" Source="SourceDir\WinSparkle.dll" />
@@ -336,7 +321,6 @@
 			<ComponentRef Id="PyQt4.QtNetwork.pyd" />
 			<ComponentRef Id="PyQt4.QtWebKit.pyd" />
 			<ComponentRef Id="python27.dll" />
-			<ComponentRef Id="pywintypes27.dll" />
 			<ComponentRef Id="qt.conf" />
 			<ComponentRef Id="QtCore4.dll" />
 			<ComponentRef Id="QtGui4.dll" />
@@ -347,10 +331,6 @@
 			<ComponentRef Id="SSLEAY32.dll" />
 			<ComponentRef Id="station.xml" />
 			<ComponentRef Id="unicodedata.pyd" />
-			<ComponentRef Id="win32api.pyd" />
-			<ComponentRef Id="win32pdh.pyd" />
-			<ComponentRef Id="win32pipe.pyd" />
-			<ComponentRef Id="win32wnet.pyd" />
 			<ComponentRef Id="WinSparkle.dll" />
 			<ComponentRef Id="_1.html" />
 			<ComponentRef Id="_2.html" />
