@@ -561,7 +561,7 @@ class Ui_MainWindow(object):
         MainWindow.setTabOrder(self.zoom_button, self.result_table)
 
     def retranslateUi(self, MainWindow):
-        self.label_2.setText(_translate("MainWindow", "<html><head/><body><p>If you have any problems please <span style=\" font-weight:600; text-decoration: underline;\">read &quot;Help&quot;</span>. Please send any bug reports, issues or suggestions to eliteocr@gmail.com or post them in the <a href=\"https://forums.frontier.co.uk/showthread.php?t=68771\"><span style=\" text-decoration: underline; color:#0000ff;\">forum.</span></a></p></body></html>", None))
+        self.label_2.setText(_translate("MainWindow", "<html><head/><body><p>If you have any problems please <span style=\" font-weight:600; text-decoration: underline;\">read &quot;Help&quot;</span>. Please post any bug reports, issues or suggestions on <a href=\"https://github.com/Marginal/EliteOCR/issues\"><span style=\" text-decoration: underline; color:#0000ff;\">GitHub</span></a> or in the <a href=\"https://forums.frontier.co.uk/showthread.php?t=225840\"><span style=\" text-decoration: underline; color:#0000ff;\">forum.</span></a></p></body></html>", None))
         self.add_button.setText(_translate("MainWindow", "...", None))
         self.remove_button.setText(_translate("MainWindow", "...", None))
         self.add_all_button.setText(_translate("MainWindow", "Add all", None))
