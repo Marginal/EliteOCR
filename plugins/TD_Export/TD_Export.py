@@ -94,10 +94,10 @@ class Item(object):
         self.itmName     = itmName
         self.sell_to     = int(sell_to or 0)
         self.buy_from    = int(buy_from or 0)
-        self.demand      = int(demand or 0)
+        self.demand      = demand
         self.demandLevel = dictLevels.get(demandLevel.upper(), -1)
-        self.supply      = int(supply or 0)
-        self.supplyLevel = dictLevels.get(supplyLevel.upper(), 0)
+        self.supply      = supply
+        self.supplyLevel = dictLevels.get(supplyLevel.upper(), -1)
         if timeStamp:
             self.timeStamp = datetime.datetime.strptime(timeStamp, "%Y-%m-%dT%H:%M:%S+00:00").isoformat(b" ")
         else:
@@ -252,12 +252,6 @@ class TD_Export():
             makedirs(exportDir)
         fileName = join(exportDir, "import.prices")
 
-        # python 2 <-> 3
-        try:
-            xrange
-        except NameError:
-            xrange = range
-
         # initialization
         system  = None
         station = None
@@ -371,30 +365,16 @@ class TD_Export():
                                 exportFile.write("   + {}\n".format(catName))
                                 oldCategory = catName
 
-                            if item.buy_from > 0:
-                                # Zero demand-price gets default demand.
-                                # If there is a price, always default to unknown
-                                # because it can be sold here but the demand is just
-                                # not useful as data.
-                                demandStr = defIQL
-                                if item.supplyLevel == 0:
-                                    stockStr = naIQL
-                                elif item.supplyLevel < 0 and item.supply <= 0:
-                                    stockStr = defIQL
-                                else:
-                                    units = "?" if item.supply < 0 else str(item.supply)
-                                    level = levelDesc[item.supplyLevel + 1]
-                                    stockStr = units + level
+                            if item.demand != '':
+                                demandStr = '%d%s' % (item.demand, levelDesc[item.demandLevel + 1])
                             else:
-                                if item.demandLevel == 0:
-                                    demandStr = naIQL
-                                elif item.demandLevel < 0 and item.demand <= 0:
-                                    demandStr = defIQL
-                                else:
-                                    units = "?" if item.demand < 0 else str(item.demand)
-                                    level = levelDesc[item.demandLevel + 1]
-                                    demandStr = units + level
+                                demandStr = defIQL
+
+                            if item.supply != '':
+                                stockStr = '%d%s' % (item.supply, levelDesc[item.supplyLevel + 1])
+                            else:
                                 stockStr = naIQL
+
                             exportFile.write("      {:<23}"
                                              " {:>7}"
                                              " {:>7}"
